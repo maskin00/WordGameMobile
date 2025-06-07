@@ -1,0 +1,12 @@
+Technical documentation of the project "WordGame"
+General project description
+Project "WordGame" is a browser game in which the player has to guess words by typing them on the keyboard. Words are displayed on the screen along with images related to the game theme (for example, flags of countries for "Capital" theme). If you enter the word correctly, it "explodes" with particle animation, the player gets points and a new word appears. The game supports difficulty levels, pauses and theme selection.
+Current game functionality
+Gameplay: 
+The game is started by pressing "Start" button.
+One word (for example, "LAO") and an associated image (the Lao flag from images/capitals/LA.png) appears on the screen.
+The player enters a word from the keyboard. If entered correctly, the word "explodes" (particle animation), points are added (10 per word) and a new word appears.
+If a word goes beyond the bottom edge of the screen, it is removed without any points being added.
+The game is paused ("Pause" button).
+Topics: 
+Current topics - "Capital" and "Footballers"
