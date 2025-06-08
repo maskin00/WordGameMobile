@@ -1,4 +1,4 @@
-// game.js (обновлён для адаптивного масштабирования изображений)
+// game.js (обновлён для исправления ошибок и адаптивного масштабирования)
 class Particle {
     constructor(x, y) {
         this.x = x;
@@ -33,7 +33,7 @@ class Word {
         this.image = new Image();
         this.image.src = imgSrc;
         this.image.onerror = () => console.error(`Не удалось загрузить изображение: ${this.imgSrc}`);
-        this.image.onload = () => console.log(`Изображение загружено: ${this.imgSrc}`);
+        this.image.onload = () => console.log(`Изображение загружено: ${this.imgSrc}, размер: ${this.image.width}x${this.image.height}`);
         this.particles = [];
         this.exploding = false;
         this.game = game; // Ссылка на объект Game для доступа к canvas
@@ -60,9 +60,17 @@ class Word {
             const maxSize = Math.min(this.game.canvas.width, this.game.canvas.height) * 0.3; // 30% от меньшего размера холста
             const width = this.image.width;
             const height = this.image.height;
-            const scale = Math.min(maxSize / width, maxSize / height); // Сохранение пропорций
-            scaledWidth = width * scale;
-            scaledHeight = height * scale;
+            const aspectRatio = width / height;
+            // Вычисляем масштабирование с сохранением пропорций
+            if (aspectRatio > 1) {
+                // Широкое изображение (например, флаги 2:1)
+                scaledWidth = Math.min(maxSize, width * (maxSize / height));
+                scaledHeight = scaledWidth / aspectRatio;
+            } else {
+                // Высокое или квадратное изображение (например, портреты 1:1)
+                scaledHeight = Math.min(maxSize, height * (maxSize / width));
+                scaledWidth = scaledHeight * aspectRatio;
+            }
             ctx.drawImage(this.image, this.x - scaledWidth / 2, this.y - scaledHeight / 2, scaledWidth, scaledHeight);
         } else {
             ctx.fillStyle = 'lightgray';
@@ -95,9 +103,12 @@ class Word {
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
+        if (!this.canvas) {
+            console.error('Canvas element not found');
+            return;
+        }
         this.ctx = this.canvas.getContext('2d');
-        this.canvas.width = 800;
-        this.canvas.height = 600;
+        this.updateCanvasSize(); // Инициализация адаптивных размеров canvas
         this.words = [];
         this.score = 0;
         this.level = 1;
@@ -110,6 +121,16 @@ class Game {
         this.isPaused = false;
         this.setupMobileKeyboard();
         this.loadData();
+        window.addEventListener('resize', () => this.updateCanvasSize()); // Обновление при изменении размера окна
+    }
+
+    updateCanvasSize() {
+        const container = document.getElementById('gameContainer');
+        if (container) {
+            this.canvas.width = container.offsetWidth;
+            this.canvas.height = container.offsetHeight;
+            this.draw(); // Перерисовка после изменения размеров
+        }
     }
 
     async loadData() {
@@ -185,7 +206,7 @@ class Game {
 
     startGame() {
         document.getElementById('startButton').addEventListener('click', () => {
-            if (!this.isPaused) this.gameLoop();
+            if (!this.isPaused && this.themes[this.currentTheme].length > 0) this.gameLoop();
             this.isPaused = false;
             document.getElementById('startButton').blur();
         });
@@ -226,12 +247,15 @@ class Game {
 
     spawnWord() {
         const themeData = this.themes[this.currentTheme];
-        if (!themeData.length || this.words.length) return;
+        if (!themeData.length || this.words.length > 0) return;
 
         const randomItem = themeData[Math.floor(Math.random() * themeData.length)];
         const wordText = this.currentTheme === 'cities' ? randomItem.capital : randomItem.name;
         const imgSrc = this.getImagePath(wordText);
-        if (!imgSrc) return;
+        if (!imgSrc) {
+            console.warn(`No image found for ${wordText}`);
+            return;
+        }
 
         const x = this.canvas.width / 2;
         const word = new Word(wordText, x, imgSrc, this); // Передаем this как game
@@ -252,18 +276,22 @@ class Game {
 
     update() {
         this.words.forEach((word, idx) => {
-            word.update();
-            if (word.exploding && !word.particles.length) {
-                this.words.splice(idx, 1);
-            } else if (!word.exploding && word.y > this.canvas.height) {
-                this.words.splice(idx, 1);
+            if (word) {
+                word.update();
+                if (word.exploding && !word.particles.length) {
+                    this.words.splice(idx, 1);
+                } else if (!word.exploding && word.y > this.canvas.height) {
+                    this.words.splice(idx, 1);
+                }
             }
         });
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.words.forEach(w => w.draw(this.ctx, this.input));
+        this.words.forEach(w => {
+            if (w) w.draw(this.ctx, this.input);
+        });
         document.getElementById('score').textContent = `Очки: ${this.score} (Уровень ${this.level})`;
     }
 
@@ -274,18 +302,15 @@ class Game {
         const inputUpper = this.input.toUpperCase();
         let matchedLength = 0;
 
-        // Проверяем каждую букву
         for (let i = 0; i < inputUpper.length && i < currentWord.length; i++) {
             if (inputUpper[i] === currentWord[i]) {
                 matchedLength++;
             } else {
-                // Полный сброс при ошибке
                 this.input = '';
                 return;
             }
         }
 
-        // Если слово полностью совпало
         if (matchedLength === currentWord.length) {
             this.words[0].explode();
             this.score += 10;
