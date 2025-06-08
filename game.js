@@ -1,4 +1,4 @@
-// game.js (обновлён для сохранения пропорций изображений)
+// game.js (обновлён для адаптивного масштабирования с сохранением пропорций)
 class Particle {
     constructor(x, y) {
         this.x = x;
@@ -33,9 +33,7 @@ class Word {
         this.image = new Image();
         this.image.src = imgSrc;
         this.image.onerror = () => console.error(`Не удалось загрузить изображение: ${this.imgSrc}`);
-        this.image.onload = () => {
-            console.log(`Изображение загружено: ${this.imgSrc}, размер: ${this.image.width}x${this.image.height}`);
-        };
+        this.image.onload = () => console.log(`Изображение загружено: ${this.imgSrc}, размер: ${this.image.width}x${this.image.height}`);
         this.particles = [];
         this.exploding = false;
         this.game = game; // Ссылка на объект Game для доступа к canvas
@@ -63,11 +61,14 @@ class Word {
             const width = this.image.width;
             const height = this.image.height;
             const aspectRatio = width / height;
-            const scale = Math.min(maxSize / width, maxSize / height); // Сохранение пропорций
-            scaledWidth = Math.min(maxSize, width * scale); // Ограничиваем максимальным размером
-            scaledHeight = scaledWidth / aspectRatio; // Сохраняем исходное соотношение сторон
-            if (scaledHeight > maxSize) {
-                scaledHeight = maxSize;
+            // Вычисляем масштабирование с сохранением пропорций
+            if (aspectRatio > 1) {
+                // Широкое изображение (например, флаги 2:1)
+                scaledWidth = Math.min(maxSize, width * (maxSize / height));
+                scaledHeight = scaledWidth / aspectRatio;
+            } else {
+                // Высокое или квадратное изображение (например, портреты 1:1)
+                scaledHeight = Math.min(maxSize, height * (maxSize / width));
                 scaledWidth = scaledHeight * aspectRatio;
             }
             ctx.drawImage(this.image, this.x - scaledWidth / 2, this.y - scaledHeight / 2, scaledWidth, scaledHeight);
@@ -103,7 +104,7 @@ class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.updateCanvasSize(); // Инициализация размеров canvas
+        this.updateCanvasSize(); // Инициализация адаптивных размеров canvas
         this.words = [];
         this.score = 0;
         this.level = 1;
