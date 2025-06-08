@@ -1,4 +1,4 @@
-// game.js (обновлён для поддержки пробела и дефиса)
+// game.js (обновлён для поддержки пробела и дефиса с сохранением пропорций изображений)
 class Particle {
     constructor(x, y) {
         this.x = x;
@@ -53,13 +53,14 @@ class Word {
             return;
         }
 
+        let scaledWidth = 0;
         let scaledHeight = 0;
         if (this.image.complete && this.image.naturalWidth !== 0) {
-            const maxSize = 200;
+            const maxSize = 200; // Максимальный размер изображения
             const width = this.image.width;
             const height = this.image.height;
-            const scale = Math.min(maxSize / width, maxSize / height);
-            const scaledWidth = width * scale;
+            const scale = Math.min(maxSize / width, maxSize / height); // Сохранение пропорций
+            scaledWidth = width * scale;
             scaledHeight = height * scale;
             ctx.drawImage(this.image, this.x - scaledWidth / 2, this.y - scaledHeight / 2, scaledWidth, scaledHeight);
         } else {
@@ -161,7 +162,7 @@ class Game {
                 this.checkInput();
             });
             key.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // Предотвращаем стандартное поведение сенсорного ввода
+                e.preventDefault();
                 this.input += letter.toUpperCase();
                 this.checkInput();
             }, { passive: false });
