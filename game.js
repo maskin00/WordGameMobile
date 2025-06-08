@@ -1,4 +1,4 @@
-// game.js (обновлён для поддержки пробела и дефиса с сохранением пропорций изображений)
+// game.js (обновлён для адаптивного масштабирования изображений)
 class Particle {
     constructor(x, y) {
         this.x = x;
@@ -24,7 +24,7 @@ class Particle {
 }
 
 class Word {
-    constructor(text, x, imgSrc) {
+    constructor(text, x, imgSrc, game) {
         this.text = text.toUpperCase();
         this.x = x;
         this.y = 0;
@@ -36,6 +36,7 @@ class Word {
         this.image.onload = () => console.log(`Изображение загружено: ${this.imgSrc}`);
         this.particles = [];
         this.exploding = false;
+        this.game = game; // Ссылка на объект Game для доступа к canvas
     }
 
     update() {
@@ -56,7 +57,7 @@ class Word {
         let scaledWidth = 0;
         let scaledHeight = 0;
         if (this.image.complete && this.image.naturalWidth !== 0) {
-            const maxSize = 200; // Максимальный размер изображения
+            const maxSize = Math.min(this.game.canvas.width, this.game.canvas.height) * 0.3; // 30% от меньшего размера холста
             const width = this.image.width;
             const height = this.image.height;
             const scale = Math.min(maxSize / width, maxSize / height); // Сохранение пропорций
@@ -80,7 +81,7 @@ class Word {
         for (let i = 0; i < this.text.length; i++) {
             ctx.fillStyle = i < matchedLength ? 'lime' : 'white';
             const textX = this.x + (i * 20) - (this.text.length * 10);
-            const textY = this.y + scaledHeight / 2 + 30;
+            const textY = this.y + scaledHeight / 2 + 30; // Корректировка позиции текста
             ctx.fillText(this.text[i], textX, textY);
         }
     }
@@ -233,7 +234,7 @@ class Game {
         if (!imgSrc) return;
 
         const x = this.canvas.width / 2;
-        const word = new Word(wordText, x, imgSrc);
+        const word = new Word(wordText, x, imgSrc, this); // Передаем this как game
         this.words.push(word);
     }
 
