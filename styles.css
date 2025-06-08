@@ -1,4 +1,4 @@
-/* styles.css - улучшенная мобильная адаптация */
+/* styles.css */
 body {
     margin: 0;
     display: flex;
@@ -8,17 +8,15 @@ body {
     min-height: 100vh;
     background-color: #222;
     font-family: Arial, sans-serif;
-    padding: 5px;
-    box-sizing: border-box;
 }
 
 #gameContainer {
     position: relative;
-    width: 95vw;
+    width: 90vw;
     max-width: 800px;
-    height: 35vh;
-    max-height: 400px;
-    margin: 5px auto;
+    height: 60vh;
+    max-height: 600px;
+    margin: 10px auto;
 }
 
 #gameCanvas {
@@ -30,18 +28,16 @@ body {
 
 #score {
     position: absolute;
-    top: 5px;
-    left: 5px;
+    top: 10px;
+    left: 10px;
     color: white;
-    font-size: clamp(12px, 3vw, 18px);
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    font-size: clamp(16px, 4vw, 24px); /* Адаптивный размер шрифта */
 }
 
 #themeSelect {
-    padding: 8px 12px;
-    font-size: clamp(12px, 2.5vw, 14px);
-    margin: 0 5px;
+    padding: 1vw;
+    font-size: clamp(14px, 3vw, 16px);
+    margin: 0 1vw;
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
@@ -54,23 +50,22 @@ body {
 }
 
 #controls {
-    margin: 10px 0;
+    margin: 2vh 0;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 8px;
-    padding: 0 10px;
+    gap: 1vw;
 }
 
 button {
-    padding: 8px 16px;
-    font-size: clamp(12px, 2.5vw, 14px);
+    padding: 1vw 2vw;
+    font-size: clamp(14px, 3vw, 16px);
+    margin: 0 0.5vw;
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
-    min-width: 60px;
 }
 
 button:hover {
@@ -86,166 +81,80 @@ button:hover {
 }
 
 #keyboard {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 2px;
-    max-width: 95vw;
-    margin: 10px auto;
-    padding: 0 5px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 90vw;
+    margin-top: 1vh;
+    gap: 0.5vw;
 }
 
 .key {
-    padding: 8px 4px;
+    padding: 0.8vw;
+    margin: 0;
     font-size: clamp(10px, 2vw, 14px);
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 3px;
+    border-radius: 5px;
+    display: inline-block;
+    min-width: 5vw;
     text-align: center;
     box-sizing: border-box;
-    min-height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
 }
 
-.key:hover, .key:active {
+.key:hover {
     background-color: #45a049;
 }
 
 .key.special {
-    grid-column: span 2;
-    font-size: clamp(9px, 1.8vw, 12px);
+    width: 10vw;
+    font-size: clamp(10px, 1.8vw, 14px);
 }
 
-/* Адаптация для маленьких экранов */
 @media (max-width: 600px) {
-    body {
-        padding: 2px;
-    }
-    
     #gameContainer {
-        height: 30vh;
-        max-height: 300px;
-        width: 98vw;
+        height: 55vh;
     }
 
     #score {
-        font-size: clamp(11px, 3.5vw, 16px);
-        top: 3px;
-        left: 3px;
+        font-size: clamp(14px, 5vw, 20px);
     }
 
-    #controls {
-        margin: 8px 0;
-        gap: 6px;
-    }
-
-    #themeSelect, button {
-        font-size: clamp(11px, 3vw, 13px);
-        padding: 6px 10px;
-    }
-
-    #keyboard {
-        gap: 1px;
-        max-width: 98vw;
-        margin: 8px auto;
+    #themeSelect, button, .key {
+        font-size: clamp(12px, 3.5vw, 16px);
     }
 
     .key {
-        padding: 6px 2px;
-        font-size: clamp(9px, 2.2vw, 12px);
-        min-height: 30px;
+        padding: 1vw;
+        min-width: 7vw;
     }
 
     .key.special {
-        font-size: clamp(8px, 2vw, 11px);
+        width: 12vw;
+    }
+
+    #keyboard {
+        gap: 0.3vw;
     }
 }
 
-/* Адаптация для очень маленьких экранов */
 @media (max-width: 400px) {
     #gameContainer {
-        height: 28vh;
-        max-height: 250px;
-    }
-
-    #keyboard {
-        grid-template-columns: repeat(10, 1fr);
-        gap: 1px;
+        height: 50vh;
     }
 
     .key {
-        padding: 5px 1px;
-        font-size: clamp(8px, 2.5vw, 11px);
-        min-height: 28px;
+        min-width: 8vw;
+        padding: 0.8vw;
     }
 
     .key.special {
-        grid-column: span 2;
-        font-size: clamp(7px, 2.2vw, 10px);
-    }
-
-    #controls {
-        gap: 4px;
-    }
-
-    #themeSelect, button {
-        font-size: clamp(10px, 3.2vw, 12px);
-        padding: 5px 8px;
-        min-width: 50px;
-    }
-}
-
-/* Адаптация для портретной ориентации на мобильных */
-@media (max-width: 500px) and (orientation: portrait) {
-    #gameContainer {
-        height: 25vh;
-        max-height: 200px;
+        width: 15vw;
     }
 
     #keyboard {
-        margin: 5px auto;
-    }
-
-    .key {
-        min-height: 26px;
-    }
-}
-
-/* Адаптация для альбомной ориентации на мобильных */
-@media (max-height: 500px) and (orientation: landscape) {
-    body {
-        min-height: auto;
-        height: 100vh;
-        overflow: hidden;
-    }
-    
-    #gameContainer {
-        height: 40vh;
-        max-height: 180px;
-    }
-
-    #controls {
-        margin: 5px 0;
-    }
-
-    #keyboard {
-        margin: 5px auto;
-        gap: 1px;
-    }
-
-    .key {
-        min-height: 22px;
-        padding: 3px 1px;
-        font-size: clamp(7px, 2vw, 10px);
-    }
-
-    .key.special {
-        font-size: clamp(6px, 1.8vw, 9px);
+        gap: 0.2vw;
     }
 }
