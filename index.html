@@ -164,7 +164,21 @@
             font-size: clamp(10px, 2.5vw, 14px);
         }
 
-        .key.special:hover, .key.special:focus {
+        .key.space {
+            background: #4CAF50;
+            grid-column: span 4;
+            font-size: clamp(10px, 2.5vw, 14px);
+        }
+
+        .key.hyphen {
+            background: #4CAF50;
+            grid-column: span 2;
+            font-size: clamp(10px, 2.5vw, 14px);
+        }
+
+        .key.special:hover, .key.special:focus,
+        .key.space:hover, .key.space:focus,
+        .key.hyphen:hover, .key.hyphen:focus {
             background: #da190b;
         }
 

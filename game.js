@@ -107,6 +107,49 @@ class Game {
         this.currentTheme = 'cities';
         this.isPaused = false;
         this.loadData();
+        this.initKeyboard();
+    }
+
+    initKeyboard() {
+        const keyboard = document.getElementById('keyboard');
+        const letters = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+        
+        // Создаем кнопки для букв
+        for (let letter of letters) {
+            const key = document.createElement('button');
+            key.className = 'key';
+            key.textContent = letter;
+            key.addEventListener('click', () => this.handleKeyPress(letter));
+            keyboard.appendChild(key);
+        }
+
+        // Добавляем кнопку пробела
+        const spaceKey = document.createElement('button');
+        spaceKey.className = 'key space';
+        spaceKey.textContent = 'ПРОБЕЛ';
+        spaceKey.addEventListener('click', () => this.handleKeyPress(' '));
+        keyboard.appendChild(spaceKey);
+
+        // Добавляем кнопку дефиса
+        const hyphenKey = document.createElement('button');
+        hyphenKey.className = 'key hyphen';
+        hyphenKey.textContent = '-';
+        hyphenKey.addEventListener('click', () => this.handleKeyPress('-'));
+        keyboard.appendChild(hyphenKey);
+    }
+
+    handleKeyPress(key) {
+        if (this.isPaused) return;
+        this.input += key;
+        if (this.words.length > 0) {
+            const target = this.words[0].text;
+            const inputUp = this.input.toUpperCase();
+            if (!target.startsWith(inputUp)) {
+                this.input = '';
+                return;
+            }
+        }
+        this.checkInput();
     }
 
     async loadData() {
@@ -152,19 +195,11 @@ class Game {
         document.getElementById('pauseButton').addEventListener('click', () => this.pauseGame());
         document.getElementById('endButton').addEventListener('click', () => this.endGame());
 
+        // Оставляем обработку физической клавиатуры для отладки
         document.addEventListener('keydown', e => {
             if (this.isPaused) return;
             const key = e.key;
-            this.input += key;
-            if (this.words.length > 0) {
-                const target = this.words[0].text;
-                const inputUp = this.input.toUpperCase();
-                if (!target.startsWith(inputUp)) {
-                    this.input = '';
-                    return;
-                }
-            }
-            this.checkInput();
+            this.handleKeyPress(key);
         });
     }
 
