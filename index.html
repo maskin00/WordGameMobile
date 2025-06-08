@@ -13,13 +13,16 @@
             padding: 0;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
             background-color: #222;
             font-family: Arial, sans-serif;
-            overflow-x: hidden;
             padding: 5px;
         }
 
@@ -27,9 +30,11 @@
             position: relative;
             width: 100%;
             max-width: 800px;
-            margin: 0 auto 10px;
+            margin: 0 auto;
             flex: 1;
-            min-height: 250px;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         #gameCanvas {
@@ -38,6 +43,8 @@
             border: 2px solid white;
             background-color: #000;
             display: block;
+            flex: 1;
+            min-height: 0;
         }
 
         #score {
@@ -52,10 +59,16 @@
             z-index: 10;
         }
 
-        #controls {
+        .controls-and-input {
+            display: flex;
+            flex-direction: column;
             width: 100%;
             max-width: 800px;
-            margin: 0 auto 10px;
+            margin: 0 auto;
+            gap: 8px;
+        }
+
+        #controls {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
@@ -96,8 +109,6 @@
 
         #mobileInput {
             width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
         }
 
         #inputDisplay {
@@ -119,7 +130,7 @@
             display: grid;
             gap: 4px;
             grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-            max-width: 100%;
+            width: 100%;
         }
 
         .key {
