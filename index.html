@@ -6,32 +6,30 @@
     <title>Игра с словами</title>
     <link rel="icon" href="favicon.ico">
     <style>
-        /* Мобильные стили */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            padding: 10px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
             min-height: 100vh;
             background-color: #222;
             font-family: Arial, sans-serif;
             overflow-x: hidden;
+            padding: 5px;
         }
 
         #gameContainer {
             position: relative;
             width: 100%;
             max-width: 800px;
-            height: 50vh;
-            min-height: 300px;
-            margin-bottom: 15px;
+            margin: 0 auto 10px;
+            flex: 1;
+            min-height: 250px;
         }
 
         #gameCanvas {
@@ -44,63 +42,48 @@
 
         #score {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 5px;
+            left: 5px;
             color: white;
-            font-size: clamp(16px, 4vw, 24px);
-            background: rgba(0,0,0,0.7);
-            padding: 5px 10px;
-            border-radius: 5px;
+            font-size: clamp(14px, 3.5vw, 20px);
+            background: rgba(0,0,0,0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 10;
         }
 
         #controls {
             width: 100%;
             max-width: 800px;
+            margin: 0 auto 10px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             align-items: center;
-            margin-bottom: 15px;
         }
 
-        #themeSelect {
-            padding: 12px 16px;
-            font-size: 16px;
+        #themeSelect, button {
+            padding: 10px 16px;
+            font-size: 14px;
             cursor: pointer;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 8px;
-            min-width: 120px;
-            touch-action: manipulation;
-        }
-
-        #themeSelect:hover, #themeSelect:focus {
-            background-color: #45a049;
-            outline: none;
-        }
-
-        button {
-            padding: 12px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            min-width: 100px;
+            border-radius: 6px;
             touch-action: manipulation;
             -webkit-appearance: none;
+            min-height: 44px;
         }
 
+        #themeSelect:hover, #themeSelect:focus,
         button:hover, button:focus {
             background-color: #45a049;
             outline: none;
         }
 
         button:active {
-            transform: scale(0.98);
+            transform: scale(0.95);
         }
 
         #endButton {
@@ -111,42 +94,47 @@
             background-color: #da190b;
         }
 
-        /* Виртуальная клавиатура */
         #mobileInput {
             width: 100%;
             max-width: 800px;
-            margin-bottom: 15px;
+            margin: 0 auto;
         }
 
         #inputDisplay {
             background: rgba(255,255,255,0.1);
             color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: clamp(16px, 4vw, 20px);
             text-align: center;
-            min-height: 50px;
+            min-height: 44px;
             border: 2px solid #4CAF50;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #keyboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-            gap: 8px;
+            gap: 4px;
+            grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
             max-width: 100%;
         }
 
         .key {
-            padding: 12px 8px;
+            padding: 8px 4px;
             background: #555;
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 4px;
+            font-size: clamp(12px, 3vw, 16px);
             cursor: pointer;
             touch-action: manipulation;
-            min-height: 48px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .key:hover, .key:focus {
@@ -162,45 +150,95 @@
         .key.special {
             background: #f44336;
             grid-column: span 2;
+            font-size: clamp(10px, 2.5vw, 14px);
         }
 
         .key.special:hover, .key.special:focus {
             background: #da190b;
         }
 
-        /* Ориентация экрана */
-        @media screen and (orientation: landscape) and (max-height: 500px) {
+        /* Адаптация для маленьких экранов */
+        @media screen and (max-width: 480px) {
             body {
-                padding: 5px;
-            }
-            
-            #gameContainer {
-                height: 40vh;
-                min-height: 200px;
+                padding: 3px;
             }
             
             #keyboard {
-                grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-                gap: 4px;
+                gap: 2px;
+                grid-template-columns: repeat(12, 1fr);
             }
             
             .key {
-                padding: 8px 4px;
-                font-size: 14px;
                 min-height: 36px;
+                padding: 6px 2px;
+            }
+            
+            #controls {
+                gap: 6px;
+            }
+            
+            #themeSelect, button {
+                padding: 8px 12px;
+                font-size: 13px;
+                min-height: 40px;
             }
         }
 
-        /* Адаптация для планшетов */
-        @media screen and (min-width: 768px) {
+        /* Ландшафтная ориентация */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            body {
+                flex-direction: row;
+                padding: 3px;
+            }
+            
             #gameContainer {
-                height: 60vh;
+                flex: 2;
+                margin: 0 5px 0 0;
+                min-height: 200px;
+            }
+            
+            .controls-and-input {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-width: 250px;
+            }
+            
+            #controls {
+                margin-bottom: 5px;
             }
             
             #keyboard {
-                grid-template-columns: repeat(13, 1fr);
+                grid-template-columns: repeat(6, 1fr);
+                gap: 2px;
+            }
+            
+            .key {
+                min-height: 32px;
+                font-size: 12px;
+            }
+        }
+
+        /* Планшеты */
+        @media screen and (min-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            #gameContainer {
+                margin-bottom: 15px;
+            }
+            
+            #keyboard {
+                grid-template-columns: repeat(12, 1fr);
+                gap: 6px;
                 max-width: 600px;
                 margin: 0 auto;
+            }
+            
+            .key {
+                min-height: 44px;
+                padding: 10px 6px;
             }
         }
     </style>
@@ -211,41 +249,45 @@
         <div id="score">Очки: 0 (Уровень 1)</div>
     </div>
     
-    <div id="controls">
-        <select id="themeSelect">
-            <option value="cities">Столицы</option>
-            <option value="footballers">Футболисты</option>
-        </select>
-        <button id="startButton">Старт</button>
-        <button id="pauseButton">Пауза</button>
-        <button id="endButton">Завершение</button>
-    </div>
+    <div class="controls-and-input">
+        <div id="controls">
+            <select id="themeSelect">
+                <option value="cities">Столицы</option>
+                <option value="footballers">Футболисты</option>
+            </select>
+            <button id="startButton">Старт</button>
+            <button id="pauseButton">Пауза</button>
+            <button id="endButton">Стоп</button>
+        </div>
 
-    <div id="mobileInput">
-        <div id="inputDisplay"></div>
-        <div id="keyboard"></div>
+        <div id="mobileInput">
+            <div id="inputDisplay">Нажмите Старт для начала игры</div>
+            <div id="keyboard"></div>
+        </div>
     </div>
 
     <script>
-        // Адаптированная версия игры для мобильных устройств
         class Particle {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.radius = Math.random() * 5 + 2;
-                this.speedX = (Math.random() - 0.5) * 4;
-                this.speedY = (Math.random() - 0.5) * 4;
-                this.life = 30;
+                this.radius = Math.random() * 4 + 2;
+                this.speedX = (Math.random() - 0.5) * 6;
+                this.speedY = (Math.random() - 0.5) * 6;
+                this.life = 25;
             }
 
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
                 this.life--;
+                this.speedX *= 0.98;
+                this.speedY *= 0.98;
             }
 
             draw(ctx) {
-                ctx.fillStyle = `rgba(255, 165, 0, ${this.life / 30})`;
+                const alpha = this.life / 25;
+                ctx.fillStyle = `rgba(255, 165, 0, ${alpha})`;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fill();
@@ -254,17 +296,28 @@
 
         class Word {
             constructor(text, x, imgSrc) {
-                this.text = text.toUpperCase();
+                this.text = text.replace(/ё/gi, 'е').toUpperCase();
                 this.x = x;
-                this.y = 0;
-                this.speed = 0.3;
+                this.y = -50;
+                this.speed = 0.4;
                 this.imgSrc = imgSrc;
                 this.image = new Image();
-                this.image.src = imgSrc;
-                this.image.onerror = () => console.error(`Не удалось загрузить изображение: ${this.imgSrc}`);
-                this.image.onload = () => console.log(`Изображение загружено: ${this.imgSrc}`);
+                this.imageLoaded = false;
                 this.particles = [];
                 this.exploding = false;
+                
+                this.image.onload = () => {
+                    this.imageLoaded = true;
+                };
+                
+                this.image.onerror = () => {
+                    console.warn(`Изображение не загружено: ${this.imgSrc}`);
+                    this.imageLoaded = false;
+                };
+                
+                if (imgSrc) {
+                    this.image.src = imgSrc;
+                }
             }
 
             update() {
@@ -282,53 +335,91 @@
                     return;
                 }
 
-                let scaledHeight = 0;
-                if (this.image.complete && this.image.naturalWidth !== 0) {
-                    const maxSize = Math.min(ctx.canvas.width * 0.25, 150); // Адаптивный размер
-                    const width = this.image.width;
-                    const height = this.image.height;
-                    const scale = Math.min(maxSize / width, maxSize / height);
-                    const scaledWidth = width * scale;
-                    scaledHeight = height * scale;
-                    ctx.drawImage(this.image, this.x - scaledWidth / 2, this.y - scaledHeight / 2, scaledWidth, scaledHeight);
+                const canvasWidth = ctx.canvas.width;
+                const canvasHeight = ctx.canvas.height;
+                let imageHeight = 0;
+
+                // Рисование изображения
+                if (this.imageLoaded && this.image.complete) {
+                    const maxSize = Math.min(canvasWidth * 0.2, canvasHeight * 0.15, 120);
+                    const aspectRatio = this.image.width / this.image.height;
+                    let imgWidth, imgHeight;
+                    
+                    if (aspectRatio > 1) {
+                        imgWidth = maxSize;
+                        imgHeight = maxSize / aspectRatio;
+                    } else {
+                        imgHeight = maxSize;
+                        imgWidth = maxSize * aspectRatio;
+                    }
+                    
+                    ctx.drawImage(
+                        this.image, 
+                        this.x - imgWidth / 2, 
+                        this.y - imgHeight / 2, 
+                        imgWidth, 
+                        imgHeight
+                    );
+                    imageHeight = imgHeight;
                 } else {
-                    const size = Math.min(ctx.canvas.width * 0.15, 100);
-                    ctx.fillStyle = 'lightgray';
+                    // Заглушка если изображение не загрузилось
+                    const size = Math.min(canvasWidth * 0.15, canvasHeight * 0.12, 80);
+                    ctx.fillStyle = '#444';
                     ctx.fillRect(this.x - size / 2, this.y - size / 2, size, size);
-                    ctx.fillStyle = 'black';
+                    ctx.fillStyle = 'white';
                     ctx.font = `${size * 0.3}px Arial`;
                     ctx.textAlign = 'center';
                     ctx.fillText('?', this.x, this.y + size * 0.1);
+                    imageHeight = size;
                 }
 
-                // Адаптивный размер шрифта
-                const fontSize = Math.max(16, Math.min(25, ctx.canvas.width / 30));
-                ctx.font = `${fontSize}px Arial`;
+                // Рисование текста
+                const fontSize = Math.max(14, Math.min(24, canvasWidth / 35));
+                ctx.font = `bold ${fontSize}px Arial`;
                 ctx.textAlign = 'center';
                 
-                const inputUpper = input.toUpperCase();
-                let matchedLength = 0;
-                for (let i = 0; i < inputUpper.length && i < this.text.length; i++) {
-                    if (inputUpper[i] === this.text[i]) matchedLength++;
-                    else break;
-                }
+                const textY = this.y + imageHeight / 2 + fontSize + 8;
                 
-                const textY = this.y + scaledHeight / 2 + fontSize + 10;
+                // Фон для текста
+                const textWidth = ctx.measureText(this.text).width;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(
+                    this.x - textWidth / 2 - 4, 
+                    textY - fontSize - 2, 
+                    textWidth + 8, 
+                    fontSize + 6
+                );
+                
+                // Основной текст
                 ctx.fillStyle = 'white';
                 ctx.fillText(this.text, this.x, textY);
                 
                 // Подсветка введенных букв
+                const inputUpper = input.replace(/ё/gi, 'е').toUpperCase();
+                let matchedLength = 0;
+                
+                for (let i = 0; i < Math.min(inputUpper.length, this.text.length); i++) {
+                    if (inputUpper[i] === this.text[i]) {
+                        matchedLength++;
+                    } else {
+                        break;
+                    }
+                }
+                
                 if (matchedLength > 0) {
-                    const metrics = ctx.measureText(this.text.substring(0, matchedLength));
-                    const totalWidth = ctx.measureText(this.text).width;
-                    ctx.fillStyle = 'lime';
-                    ctx.fillText(this.text.substring(0, matchedLength), this.x - totalWidth/2 + metrics.width/2, textY);
+                    const matchedText = this.text.substring(0, matchedLength);
+                    const matchedWidth = ctx.measureText(matchedText).width;
+                    ctx.fillStyle = '#00ff00';
+                    ctx.fillText(matchedText, this.x - textWidth/2 + matchedWidth/2, textY);
                 }
             }
 
             explode() {
                 this.exploding = true;
-                for (let i = 0; i < 20; i++) this.particles.push(new Particle(this.x, this.y));
+                const particleCount = Math.min(25, Math.max(15, Math.floor(Math.random() * 10) + 20));
+                for (let i = 0; i < particleCount; i++) {
+                    this.particles.push(new Particle(this.x, this.y));
+                }
             }
         }
 
@@ -339,13 +430,15 @@
                 this.words = [];
                 this.score = 0;
                 this.level = 1;
-                this.spawnDelay = 2000;
+                this.spawnDelay = 2500;
                 this.lastSpawn = 0;
                 this.input = '';
-                this.themes = { 'cities': [], 'footballers': [] };
+                this.themes = { cities: [], footballers: [] };
                 this.wordMapping = {};
                 this.currentTheme = 'cities';
-                this.isPaused = false;
+                this.isPaused = true;
+                this.isGameStarted = false;
+                
                 this.setupCanvas();
                 this.setupMobileKeyboard();
                 this.loadData();
@@ -355,14 +448,16 @@
                 const resizeCanvas = () => {
                     const container = document.getElementById('gameContainer');
                     const rect = container.getBoundingClientRect();
-                    this.canvas.width = rect.width;
-                    this.canvas.height = rect.height;
+                    this.canvas.width = rect.width - 4; // Учитываем border
+                    this.canvas.height = rect.height - 4;
                 };
                 
                 resizeCanvas();
-                window.addEventListener('resize', resizeCanvas);
-                window.addEventListener('orientationchange', () => {
+                window.addEventListener('resize', () => {
                     setTimeout(resizeCanvas, 100);
+                });
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(resizeCanvas, 200);
                 });
             }
 
@@ -370,27 +465,36 @@
                 const keyboard = document.getElementById('keyboard');
                 const inputDisplay = document.getElementById('inputDisplay');
                 
-                // Создаем русскую клавиатуру
-                const layout = [
+                // Оптимизированная русская раскладка
+                const rows = [
                     ['Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г', 'Ш', 'Щ', 'З', 'Х', 'Ъ'],
-                    ['Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э'],
-                    ['Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю']
+                    ['Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э', ''],
+                    ['Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю', '', '', '']
                 ];
 
-                layout.forEach(row => {
+                keyboard.innerHTML = '';
+
+                rows.forEach(row => {
                     row.forEach(letter => {
-                        const key = document.createElement('button');
-                        key.className = 'key';
-                        key.textContent = letter;
-                        key.addEventListener('click', () => this.handleKeyInput(letter));
-                        keyboard.appendChild(key);
+                        if (letter) {
+                            const key = document.createElement('button');
+                            key.className = 'key';
+                            key.textContent = letter;
+                            key.addEventListener('click', () => this.handleKeyInput(letter));
+                            keyboard.appendChild(key);
+                        } else {
+                            // Пустая ячейка для выравнивания
+                            const emptyKey = document.createElement('div');
+                            emptyKey.style.gridColumn = '1';
+                            keyboard.appendChild(emptyKey);
+                        }
                     });
                 });
 
                 // Кнопка очистки
                 const clearKey = document.createElement('button');
                 clearKey.className = 'key special';
-                clearKey.textContent = 'Очистить';
+                clearKey.textContent = '← Очистить';
                 clearKey.addEventListener('click', () => this.clearInput());
                 keyboard.appendChild(clearKey);
 
@@ -398,20 +502,33 @@
             }
 
             handleKeyInput(letter) {
-                if (this.isPaused) return;
+                if (this.isPaused || !this.isGameStarted) return;
                 
-                this.input += letter;
+                const normalizedLetter = letter.replace(/ё/gi, 'е').toUpperCase();
+                this.input += normalizedLetter;
+                
                 if (this.words.length > 0) {
                     const target = this.words[0].text;
-                    const inputUp = this.input.toUpperCase();
+                    const inputUp = this.input.replace(/ё/gi, 'е').toUpperCase();
                     if (!target.startsWith(inputUp)) {
                         this.input = '';
                         this.updateInputDisplay();
+                        // Визуальная обратная связь об ошибке
+                        this.showError();
                         return;
                     }
                 }
                 this.updateInputDisplay();
                 this.checkInput();
+            }
+
+            showError() {
+                const display = document.getElementById('inputDisplay');
+                const originalBg = display.style.backgroundColor;
+                display.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+                setTimeout(() => {
+                    display.style.backgroundColor = originalBg;
+                }, 200);
             }
 
             clearInput() {
@@ -421,35 +538,130 @@
 
             updateInputDisplay() {
                 const display = document.getElementById('inputDisplay');
-                display.textContent = this.input || 'Вводите слово...';
+                if (!this.isGameStarted) {
+                    display.textContent = 'Нажмите Старт для начала игры';
+                } else if (this.isPaused) {
+                    display.textContent = 'Игра на паузе';
+                } else {
+                    display.textContent = this.input || 'Введите слово...';
+                }
             }
 
             async loadData() {
                 try {
-                    const responses = await Promise.all([
-                        fetch('countries_full_ru.txt').then(r => r.text()),
-                        fetch('footballers.txt').then(r => r.text()),
-                        fetch('wordMapping.json').then(r => r.json())
-                    ]);
-                    const [countriesText, footballersText, mapping] = responses;
+                    // Данные-заглушки для демонстрации
+                    const citiesData = `
+Россия - RU - Москва
+США - US - Вашингтон
+Франция - FR - Париж
+Германия - DE - Берлин
+Италия - IT - Рим
+Испания - ES - Мадрид
+Канада - CA - Оттава
+Япония - JP - Токио
+Китай - CN - Пекин
+Индия - IN - Дели
+Бразилия - BR - Бразилиа
+Австралия - AU - Канберра
+Англия - GB - Лондон
+Египет - EG - Каир
+Турция - TR - Анкара
+Греция - GR - Афины
+Норвегия - NO - Осло
+Швеция - SE - Стокгольм
+Финляндия - FI - Хельсинки
+Польша - PL - Варшава`.trim();
 
-                    this.themes.cities = countriesText.split('\n')
+                    const footballersData = `
+Месси
+Роналду
+Неймар
+Мбаппе
+Холанд
+Модрич
+Бензема
+Левандовски
+Гризманн
+Канте
+Погба
+Азар
+Салах
+Мане
+Фирмино
+Рамос
+Пике
+Чиеллини
+Нейер
+Куртуа`.trim();
+
+                    const wordMapping = {
+                        cities: {
+                            "МОСКВА": "ru",
+                            "ВАШИНГТОН": "us",
+                            "ПАРИЖ": "fr",
+                            "БЕРЛИН": "de",
+                            "РИМ": "it",
+                            "МАДРИД": "es",
+                            "ОТТАВА": "ca",
+                            "ТОКИО": "jp",
+                            "ПЕКИН": "cn",
+                            "ДЕЛИ": "in",
+                            "БРАЗИЛИА": "br",
+                            "КАНБЕРРА": "au",
+                            "ЛОНДОН": "gb",
+                            "КАИР": "eg",
+                            "АНКАРА": "tr",
+                            "АФИНЫ": "gr",
+                            "ОСЛО": "no",
+                            "СТОКГОЛЬМ": "se",
+                            "ХЕЛЬСИНКИ": "fi",
+                            "ВАРШАВА": "pl"
+                        },
+                        footballers: {
+                            "МЕССИ": "messi",
+                            "РОНАЛДУ": "ronaldo",
+                            "НЕЙМАР": "neymar",
+                            "МБАППЕ": "mbappe",
+                            "ХОЛАНД": "haaland",
+                            "МОДРИЧ": "modric",
+                            "БЕНЗЕМА": "benzema",
+                            "ЛЕВАНДОВСКИ": "lewandowski",
+                            "ГРИЗМАНН": "griezmann",
+                            "КАНТЕ": "kante",
+                            "ПОГБА": "pogba",
+                            "АЗАР": "hazard",
+                            "САЛАХ": "salah",
+                            "МАНЕ": "mane",
+                            "ФИРМИНО": "firmino",
+                            "РАМОС": "ramos",
+                            "ПИКЕ": "pique",
+                            "ЧИЕЛЛИНИ": "chiellini",
+                            "НЕЙЕР": "neuer",
+                            "КУРТУА": "courtois"
+                        }
+                    };
+
+                    this.themes.cities = citiesData.split('\n')
                         .map(line => {
-                            const parts = line.split(' - ');
-                            return parts.length === 3 ? { capital: parts[2].trim(), code: parts[1].trim() } : null;
+                            const parts = line.trim().split(' - ');
+                            return parts.length === 3 ? { 
+                                capital: parts[2].trim(), 
+                                code: parts[1].trim() 
+                            } : null;
                         })
                         .filter(item => item !== null);
 
-                    this.themes.footballers = footballersText.split('\n')
+                    this.themes.footballers = footballersData.split('\n')
                         .map(line => line.trim())
                         .filter(line => line.length > 0)
                         .map(name => ({ name }));
 
-                    this.wordMapping = mapping;
+                    this.wordMapping = wordMapping;
                     this.startGame();
                 } catch (error) {
                     console.error('Ошибка загрузки данных:', error);
-                    alert('Не удалось загрузить данные. Проверьте наличие файлов.');
+                    // Используем базовые данные если загрузка не удалась
+                    this.startGame();
                 }
             }
 
@@ -461,55 +673,74 @@
                 });
 
                 document.getElementById('startButton').addEventListener('click', () => {
-                    if (!this.isPaused) this.gameLoop();
+                    this.isGameStarted = true;
                     this.isPaused = false;
+                    this.updateInputDisplay();
+                    this.gameLoop();
                 });
-                document.getElementById('pauseButton').addEventListener('click', () => this.pauseGame());
-                document.getElementById('endButton').addEventListener('click', () => this.endGame());
 
-                // Сохраняем поддержку физической клавиатуры для тестирования
+                document.getElementById('pauseButton').addEventListener('click', () => {
+                    this.pauseGame();
+                });
+
+                document.getElementById('endButton').addEventListener('click', () => {
+                    this.endGame();
+                });
+
+                // Поддержка физической клавиатуры
                 document.addEventListener('keydown', e => {
-                    if (this.isPaused) return;
+                    if (this.isPaused || !this.isGameStarted) return;
+                    
                     const key = e.key.toUpperCase();
                     if (key.match(/[А-ЯЁ]/)) {
+                        e.preventDefault();
                         this.handleKeyInput(key);
+                    } else if (e.key === 'Backspace') {
+                        e.preventDefault();
+                        this.clearInput();
                     }
                 });
             }
 
             getImagePath(word) {
+                const normalizedWord = word.replace(/ё/gi, 'е').toUpperCase();
                 if (this.currentTheme === 'cities') {
-                    const code = this.wordMapping.cities[word];
-                    return code ? `images/capitals/${code.toUpperCase()}.png` : null;
+                    const code = this.wordMapping.cities[normalizedWord];
+                    return code ? `images/capitals/${code.toUpperCase()}.png` : `images/capitals/default.png`;
                 } else if (this.currentTheme === 'footballers') {
-                    const code = this.wordMapping.footballers[word];
-                    return code ? `images/footballers/${code}.png` : null;
+                    const code = this.wordMapping.footballers[normalizedWord];
+                    return code ? `images/footballers/${code}.png` : `images/footballers/default.png`;
                 }
                 return null;
             }
 
             spawnWord() {
                 const themeData = this.themes[this.currentTheme];
-                if (!themeData.length || this.words.length) return;
+                if (!themeData?.length || this.words.length > 0) return;
 
                 const randomItem = themeData[Math.floor(Math.random() * themeData.length)];
                 const wordText = this.currentTheme === 'cities' ? randomItem.capital : randomItem.name;
                 const imgSrc = this.getImagePath(wordText);
+                
                 if (!imgSrc) return;
 
                 const x = this.canvas.width / 2;
                 const word = new Word(wordText, x, imgSrc);
-                word.speed = 0.3;
+                
+                // Увеличиваем скорость с уровнем
+                word.speed = 0.4 + (this.level - 1) * 0.2;
                 this.words.push(word);
             }
 
             gameLoop() {
-                if (this.isPaused) return;
+                if (this.isPaused || !this.isGameStarted) return;
+                
                 const now = Date.now();
                 if (now - this.lastSpawn > this.spawnDelay) {
                     this.spawnWord();
                     this.lastSpawn = now;
                 }
+                
                 this.update();
                 this.draw();
                 requestAnimationFrame(() => this.gameLoop());
@@ -518,16 +749,18 @@
             update() {
                 this.words.forEach((word, idx) => {
                     word.update();
-                    if (word.exploding && !word.particles.length) {
+                    if (word.exploding && word.particles.length === 0) {
                         this.words.splice(idx, 1);
-                        this.spawnWord();
-                    } else if (!word.exploding && word.y > this.canvas.height) {
+                    } else if (!word.exploding && word.y > this.canvas.height + 50) {
                         this.words.splice(idx, 1);
+                        // Можно добавить штраф за пропущенное слово
                     }
                 });
-                if (this.score >= 50 && this.level === 1) {
-                    this.level = 2;
-                    this.words.forEach(w => w.speed = 0.6);
+
+                // Переход на следующий уровень
+                if (this.score >= this.level * 50) {
+                    this.level++;
+                    this.spawnDelay = Math.max(1000, this.spawnDelay - 200);
                 }
             }
 
@@ -539,9 +772,13 @@
 
             checkInput() {
                 if (!this.words.length || !this.input) return;
-                if (this.words[0].text === this.input.toUpperCase()) {
+                
+                const targetText = this.words[0].text;
+                const inputText = this.input.replace(/ё/gi, 'е').toUpperCase();
+                
+                if (targetText === inputText) {
                     this.words[0].explode();
-                    this.score += 10;
+                    this.score += 10 + (this.level - 1) * 5;
                     this.input = '';
                     this.updateInputDisplay();
                 }
@@ -549,25 +786,27 @@
 
             pauseGame() {
                 this.isPaused = !this.isPaused;
-                if (this.isPaused) {
-                    this.input = '';
-                    this.updateInputDisplay();
+                this.updateInputDisplay();
+                if (!this.isPaused && this.isGameStarted) {
+                    this.gameLoop();
                 }
             }
 
             endGame() {
                 this.isPaused = true;
+                this.isGameStarted = false;
                 this.words = [];
                 this.score = 0;
                 this.level = 1;
                 this.input = '';
+                this.spawnDelay = 2500;
                 this.updateInputDisplay();
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 document.getElementById('score').textContent = `Очки: 0 (Уровень 1)`;
             }
         }
 
-        // Инициализация игры после загрузки страницы
+        // Инициализация после загрузки DOM
         document.addEventListener('DOMContentLoaded', () => {
             const game = new Game();
         });
