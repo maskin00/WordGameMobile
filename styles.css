@@ -5,15 +5,18 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #222;
     font-family: Arial, sans-serif;
 }
 
 #gameContainer {
     position: relative;
-    width: 800px;
-    height: 600px;
+    width: 90vw;
+    max-width: 800px;
+    height: 60vh;
+    max-height: 600px;
+    margin: 10px auto;
 }
 
 #gameCanvas {
@@ -28,13 +31,14 @@ body {
     top: 10px;
     left: 10px;
     color: white;
-    font-size: 24px;
+    font-size: 4vw;
+    max-font-size: 24px;
 }
 
 #themeSelect {
-    padding: 5px;
-    font-size: 16px;
-    margin: 0 10px;
+    padding: 2vw;
+    font-size: 3vw;
+    margin: 0 1vw;
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
@@ -47,15 +51,16 @@ body {
 }
 
 #controls {
-    margin: 20px 0;
+    margin: 2vh 0;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin: 0 10px;
+    padding: 2vw 4vw;
+    font-size: 3vw;
+    margin: 0 1vw;
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
@@ -79,21 +84,21 @@ button:hover {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 800px;
-    margin-top: 20px;
+    max-width: 90vw;
+    margin-top: 2vh;
 }
 
 .key {
-    padding: 10px;
-    margin: 5px;
-    font-size: 16px;
+    padding: 1.5vw;
+    margin: 0.5vw;
+    font-size: 3vw;
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
     display: inline-block;
-    min-width: 40px;
+    min-width: 8vw;
     text-align: center;
 }
 
@@ -102,5 +107,28 @@ button:hover {
 }
 
 .key.special {
-    width: 100px;
+    width: 15vw;
+}
+
+@media (max-width: 600px) {
+    #gameContainer {
+        height: 50vh;
+    }
+
+    #score {
+        font-size: 5vw;
+    }
+
+    #themeSelect, button, .key {
+        font-size: 4vw;
+    }
+
+    .key {
+        padding: 2vw;
+        min-width: 10vw;
+    }
+
+    .key.special {
+        width: 20vw;
+    }
 }
