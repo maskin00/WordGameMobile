@@ -1,4 +1,4 @@
-// game.js (обновлён для адаптивного масштабирования изображений)
+// game.js (обновлён для сохранения пропорций изображений)
 class Particle {
     constructor(x, y) {
         this.x = x;
@@ -33,7 +33,9 @@ class Word {
         this.image = new Image();
         this.image.src = imgSrc;
         this.image.onerror = () => console.error(`Не удалось загрузить изображение: ${this.imgSrc}`);
-        this.image.onload = () => console.log(`Изображение загружено: ${this.imgSrc}`);
+        this.image.onload = () => {
+            console.log(`Изображение загружено: ${this.imgSrc}, размер: ${this.image.width}x${this.image.height}`);
+        };
         this.particles = [];
         this.exploding = false;
         this.game = game; // Ссылка на объект Game для доступа к canvas
@@ -60,9 +62,14 @@ class Word {
             const maxSize = Math.min(this.game.canvas.width, this.game.canvas.height) * 0.3; // 30% от меньшего размера холста
             const width = this.image.width;
             const height = this.image.height;
+            const aspectRatio = width / height;
             const scale = Math.min(maxSize / width, maxSize / height); // Сохранение пропорций
-            scaledWidth = width * scale;
-            scaledHeight = height * scale;
+            scaledWidth = Math.min(maxSize, width * scale); // Ограничиваем максимальным размером
+            scaledHeight = scaledWidth / aspectRatio; // Сохраняем исходное соотношение сторон
+            if (scaledHeight > maxSize) {
+                scaledHeight = maxSize;
+                scaledWidth = scaledHeight * aspectRatio;
+            }
             ctx.drawImage(this.image, this.x - scaledWidth / 2, this.y - scaledHeight / 2, scaledWidth, scaledHeight);
         } else {
             ctx.fillStyle = 'lightgray';
@@ -96,8 +103,7 @@ class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.canvas.width = 800;
-        this.canvas.height = 600;
+        this.updateCanvasSize(); // Инициализация размеров canvas
         this.words = [];
         this.score = 0;
         this.level = 1;
@@ -110,6 +116,14 @@ class Game {
         this.isPaused = false;
         this.setupMobileKeyboard();
         this.loadData();
+        window.addEventListener('resize', () => this.updateCanvasSize()); // Обновление при изменении размера окна
+    }
+
+    updateCanvasSize() {
+        const container = document.getElementById('gameContainer');
+        this.canvas.width = container.offsetWidth;
+        this.canvas.height = container.offsetHeight;
+        this.draw(); // Перерисовка после изменения размеров
     }
 
     async loadData() {
