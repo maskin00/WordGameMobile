@@ -1,4 +1,4 @@
-// game.js (обновлён для поддержки пробела и дефиса)
+// game.js - обновлён для лучшей мобильной адаптации
 class Particle {
     constructor(x, y) {
         this.x = x;
@@ -55,7 +55,7 @@ class Word {
 
         let scaledHeight = 0;
         if (this.image.complete && this.image.naturalWidth !== 0) {
-            const maxSize = 200;
+            const maxSize = Math.min(ctx.canvas.width * 0.3, 150); // Адаптивный размер изображения
             const width = this.image.width;
             const height = this.image.height;
             const scale = Math.min(maxSize / width, maxSize / height);
@@ -63,23 +63,36 @@ class Word {
             scaledHeight = height * scale;
             ctx.drawImage(this.image, this.x - scaledWidth / 2, this.y - scaledHeight / 2, scaledWidth, scaledHeight);
         } else {
+            const rectSize = Math.min(ctx.canvas.width * 0.2, 100);
             ctx.fillStyle = 'lightgray';
-            ctx.fillRect(this.x - 50, this.y - 50, 100, 100);
+            ctx.fillRect(this.x - rectSize / 2, this.y - rectSize / 2, rectSize, rectSize);
             ctx.fillStyle = 'black';
-            ctx.fillText('?', this.x - 10, this.y + 10);
+            ctx.font = `${rectSize * 0.3}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('?', this.x, this.y + rectSize * 0.1);
+            scaledHeight = rectSize;
         }
 
-        ctx.font = '25px Arial';
+        // Адаптивный размер шрифта для текста
+        const fontSize = Math.max(16, Math.min(25, ctx.canvas.width / 30));
+        ctx.font = `${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        
         const inputUpper = input.toUpperCase();
         let matchedLength = 0;
         for (let i = 0; i < inputUpper.length && i < this.text.length; i++) {
             if (inputUpper[i] === this.text[i]) matchedLength++;
             else break;
         }
+        
+        const charWidth = fontSize * 0.8;
+        const totalWidth = this.text.length * charWidth;
+        const startX = this.x - totalWidth / 2;
+        
         for (let i = 0; i < this.text.length; i++) {
             ctx.fillStyle = i < matchedLength ? 'lime' : 'white';
-            const textX = this.x + (i * 20) - (this.text.length * 10);
-            const textY = this.y + scaledHeight / 2 + 30;
+            const textX = startX + (i * charWidth) + charWidth / 2;
+            const textY = this.y + scaledHeight / 2 + fontSize + 10;
             ctx.fillText(this.text[i], textX, textY);
         }
     }
@@ -94,8 +107,7 @@ class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.canvas.width = 800;
-        this.canvas.height = 600;
+        this.updateCanvasSize();
         this.words = [];
         this.score = 0;
         this.level = 1;
@@ -107,7 +119,24 @@ class Game {
         this.currentTheme = 'cities';
         this.isPaused = false;
         this.setupMobileKeyboard();
+        this.setupResizeHandler();
         this.loadData();
+    }
+
+    updateCanvasSize() {
+        const container = document.getElementById('gameContainer');
+        const rect = container.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+    }
+
+    setupResizeHandler() {
+        window.addEventListener('resize', () => {
+            clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = setTimeout(() => {
+                this.updateCanvasSize();
+            }, 100);
+        });
     }
 
     async loadData() {
@@ -145,38 +174,63 @@ class Game {
             console.error('Элемент keyboard не найден в DOM');
             return;
         }
-        const letters = ['Й','Ц','У','К','Е','Н','Г','Ш','Щ','З','Х','Ъ',
-                         'Ф','Ы','В','А','П','Р','О','Л','Д','Ж','Э',
-                         'Я','Ч','С','М','И','Т','Ь','Б','Ю','-',' '];
+        
+        // Компактная раскладка для мобильных устройств
+        const keyboardLayout = [
+            ['Й','Ц','У','К','Е','Н','Г','Ш','Щ','З','Х','Ъ'],
+            ['Ф','Ы','В','А','П','Р','О','Л','Д','Ж','Э','-'],
+            ['Я','Ч','С','М','И','Т','Ь','Б','Ю',' ','← Очистить']
+        ];
+        
         keyboard.innerHTML = '';
-        letters.forEach(letter => {
-            const key = document.createElement('button');
-            key.className = 'key';
-            key.textContent = letter === ' ' ? 'Пробел' : letter;
-            if (letter === ' ' || letter === '-') {
-                key.className += ' special';
-            }
-            key.addEventListener('click', () => {
-                this.input += letter.toUpperCase();
-                this.checkInput();
+        
+        keyboardLayout.forEach(row => {
+            row.forEach(letter => {
+                const key = document.createElement('button');
+                key.className = 'key';
+                
+                if (letter === ' ') {
+                    key.textContent = 'Пробел';
+                    key.className += ' special';
+                } else if (letter === '← Очистить') {
+                    key.textContent = letter;
+                    key.className += ' special';
+                } else {
+                    key.textContent = letter;
+                }
+                
+                // Предотвращаем зум на iOS при двойном тапе
+                key.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                });
+                
+                key.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    if (letter === '← Очистить') {
+                        this.input = '';
+                    } else {
+                        this.input += letter.toUpperCase();
+                        this.checkInput();
+                    }
+                    
+                    // Визуальная обратная связь
+                    key.style.backgroundColor = '#45a049';
+                    setTimeout(() => {
+                        key.style.backgroundColor = '#4CAF50';
+                    }, 100);
+                });
+                
+                keyboard.appendChild(key);
             });
-            keyboard.appendChild(key);
         });
-
-        const clear = document.createElement('button');
-        clear.className = 'key special';
-        clear.textContent = '← Очистить';
-        clear.addEventListener('click', () => {
-            this.input = '';
-        });
-        keyboard.appendChild(clear);
     }
 
     startGame() {
         document.getElementById('startButton').addEventListener('click', () => {
             if (!this.isPaused) this.gameLoop();
             this.isPaused = false;
-            document.getElementById('startButton').blur(); // Убираем фокус с кнопки
+            document.getElementById('startButton').blur();
         });
         document.getElementById('pauseButton').addEventListener('click', () => this.pauseGame());
         document.getElementById('endButton').addEventListener('click', () => this.endGame());
@@ -187,12 +241,12 @@ class Game {
             if (/^[а-яА-ЯёЁ \-]$/.test(key)) {
                 this.input += key.toUpperCase().replace('Ё', 'Е');
                 this.checkInput();
-                e.preventDefault(); // Предотвращаем стандартное поведение
+                e.preventDefault();
             } else if (e.key === 'Backspace') {
                 this.input = '';
                 e.preventDefault();
             } else if (e.key === ' ' && document.activeElement.tagName === 'BUTTON') {
-                e.preventDefault(); // Блокируем активацию кнопок пробелом
+                e.preventDefault();
             }
         });
 
@@ -263,18 +317,15 @@ class Game {
         const inputUpper = this.input.toUpperCase();
         let matchedLength = 0;
 
-        // Проверяем каждую букву
         for (let i = 0; i < inputUpper.length && i < currentWord.length; i++) {
             if (inputUpper[i] === currentWord[i]) {
                 matchedLength++;
             } else {
-                // Если буква неверная, полностью сбрасываем ввод
                 this.input = '';
                 return;
             }
         }
 
-        // Если слово полностью совпало
         if (matchedLength === currentWord.length) {
             this.words[0].explode();
             this.score += 10;
