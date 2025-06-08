@@ -560,118 +560,63 @@
 
             async loadData() {
                 try {
-                    // Данные-заглушки для демонстрации
-                    const citiesData = `
-Россия - RU - Москва
-США - US - Вашингтон
-Франция - FR - Париж
-Германия - DE - Берлин
-Италия - IT - Рим
-Испания - ES - Мадрид
-Канада - CA - Оттава
-Япония - JP - Токио
-Китай - CN - Пекин
-Индия - IN - Дели
-Бразилия - BR - Бразилиа
-Австралия - AU - Канберра
-Англия - GB - Лондон
-Египет - EG - Каир
-Турция - TR - Анкара
-Греция - GR - Афины
-Норвегия - NO - Осло
-Швеция - SE - Стокгольм
-Финляндия - FI - Хельсинки
-Польша - PL - Варшава`.trim();
+                    // Загружаем wordMapping.json с сервера
+                    const response = await fetch('wordMapping.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const fetchedWordMapping = await response.json();
 
-                    const footballersData = `
-Месси
-Роналду
-Неймар
-Мбаппе
-Холанд
-Модрич
-Бензема
-Левандовски
-Гризманн
-Канте
-Погба
-Азар
-Салах
-Мане
-Фирмино
-Рамос
-Пике
-Чиеллини
-Нейер
-Куртуа`.trim();
+                    // Нормализуем ВСЕ ключи (города и футболисты) в верхний регистр при загрузке
+                    this.wordMapping = {
+                        cities: {},
+                        footballers: {}
+                    };
+                    for (const key in fetchedWordMapping.cities) {
+                        this.wordMapping.cities[key.replace(/ё/gi, 'е').toUpperCase()] = fetchedWordMapping.cities[key];
+                    }
+                    for (const key in fetchedWordMapping.footballers) {
+                        this.wordMapping.footballers[key.replace(/ё/gi, 'е').toUpperCase()] = fetchedWordMapping.footballers[key];
+                    }
 
-                    const wordMapping = {
+                    // Заполняем темы из нормализованного wordMapping.json
+                    this.themes.cities = Object.keys(this.wordMapping.cities)
+                        .map(capitalNameUpper => ({
+                            capital: capitalNameUpper, // Название столицы уже в верхнем регистре
+                            code: this.wordMapping.cities[capitalNameUpper]
+                        }));
+
+                    this.themes.footballers = Object.keys(this.wordMapping.footballers)
+                        .map(nameUpper => ({
+                            name: nameUpper // Имя футболиста уже в верхнем регистре
+                        }));
+
+                    this.startGame();
+                } catch (error) {
+                    console.error('Ошибка загрузки данных:', error);
+                    // В случае ошибки загрузки, используем минимальные заглушки
+                    this.themes.cities = [
+                        { capital: "МОСКВА", code: "ru" },
+                        { capital: "ВАШИНГТОН", code: "us" },
+                        { capital: "ПАРИЖ", code: "fr" }
+                    ];
+                    this.themes.footballers = [
+                        { name: "МЕССИ" },
+                        { name: "РОНАЛДУ" },
+                        { name: "НЕЙМАР" }
+                    ];
+                    this.wordMapping = {
                         cities: {
                             "МОСКВА": "ru",
                             "ВАШИНГТОН": "us",
-                            "ПАРИЖ": "fr",
-                            "БЕРЛИН": "de",
-                            "РИМ": "it",
-                            "МАДРИД": "es",
-                            "ОТТАВА": "ca",
-                            "ТОКИО": "jp",
-                            "ПЕКИН": "cn",
-                            "ДЕЛИ": "in",
-                            "БРАЗИЛИА": "br",
-                            "КАНБЕРРА": "au",
-                            "ЛОНДОН": "gb",
-                            "КАИР": "eg",
-                            "АНКАРА": "tr",
-                            "АФИНЫ": "gr",
-                            "ОСЛО": "no",
-                            "СТОКГОЛЬМ": "se",
-                            "ХЕЛЬСИНКИ": "fi",
-                            "ВАРШАВА": "pl"
+                            "ПАРИЖ": "fr"
                         },
                         footballers: {
                             "МЕССИ": "messi",
                             "РОНАЛДУ": "ronaldo",
-                            "НЕЙМАР": "neymar",
-                            "МБАППЕ": "mbappe",
-                            "ХОЛАНД": "haaland",
-                            "МОДРИЧ": "modric",
-                            "БЕНЗЕМА": "benzema",
-                            "ЛЕВАНДОВСКИ": "lewandowski",
-                            "ГРИЗМАНН": "griezmann",
-                            "КАНТЕ": "kante",
-                            "ПОГБА": "pogba",
-                            "АЗАР": "hazard",
-                            "САЛАХ": "salah",
-                            "МАНЕ": "mane",
-                            "ФИРМИНО": "firmino",
-                            "РАМОС": "ramos",
-                            "ПИКЕ": "pique",
-                            "ЧИЕЛЛИНИ": "chiellini",
-                            "НЕЙЕР": "neuer",
-                            "КУРТУА": "courtois"
+                            "НЕЙМАР": "neymar"
                         }
                     };
-
-                    this.themes.cities = citiesData.split('\n')
-                        .map(line => {
-                            const parts = line.trim().split(' - ');
-                            return parts.length === 3 ? { 
-                                capital: parts[2].trim(), 
-                                code: parts[1].trim() 
-                            } : null;
-                        })
-                        .filter(item => item !== null);
-
-                    this.themes.footballers = footballersData.split('\n')
-                        .map(line => line.trim())
-                        .filter(line => line.length > 0)
-                        .map(name => ({ name }));
-
-                    this.wordMapping = wordMapping;
-                    this.startGame();
-                } catch (error) {
-                    console.error('Ошибка загрузки данных:', error);
-                    // Используем базовые данные если загрузка не удалась
                     this.startGame();
                 }
             }
@@ -714,13 +659,15 @@
             }
 
             getImagePath(word) {
-                const normalizedWord = word.replace(/ё/gi, 'е').toUpperCase();
+                const normalizedWord = word.replace(/ё/gi, 'е').toUpperCase(); // Слово всегда в верхнем регистре
                 if (this.currentTheme === 'cities') {
+                    // Ищем по нормализованному (верхнему регистру) слову, так как ключи в wordMapping.cities теперь тоже в верхнем регистре
                     const code = this.wordMapping.cities[normalizedWord];
                     return code ? `images/capitals/${code.toUpperCase()}.png` : `images/capitals/default.png`;
                 } else if (this.currentTheme === 'footballers') {
-                    const code = this.wordMapping.footballers[normalizedWord];
-                    return code ? `images/footballers/${code}.png` : `images/footballers/default.png`;
+                    // Ищем по нормализованному (верхнему регистру) слову, так как ключи в wordMapping.footballers теперь тоже в верхнем регистре
+                    const filenameWithId = this.wordMapping.footballers[normalizedWord];
+                    return filenameWithId ? `images/footballers/${filenameWithId}.png` : `images/footballers/default.png`;
                 }
                 return null;
             }
