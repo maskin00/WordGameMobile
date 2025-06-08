@@ -48,6 +48,8 @@ body {
 
 #controls {
     margin: 20px 0;
+    display: flex;
+    justify-content: center;
 }
 
 button {
@@ -71,4 +73,34 @@ button:hover {
 
 #endButton:hover {
     background-color: #da190b;
+}
+
+#keyboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 800px;
+    margin-top: 20px;
+}
+
+.key {
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    display: inline-block;
+    min-width: 40px;
+    text-align: center;
+}
+
+.key:hover {
+    background-color: #45a049;
+}
+
+.key.special {
+    width: 100px;
 }

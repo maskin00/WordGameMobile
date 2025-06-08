@@ -1,4 +1,4 @@
-// game.js (обновлено: пути к картинкам городов, выравнивание скорости, сброс ввода при ошибке)
+// game.js (обновлён для поддержки пробела и дефиса)
 class Particle {
     constructor(x, y) {
         this.x = x;
@@ -106,50 +106,8 @@ class Game {
         this.wordMapping = {};
         this.currentTheme = 'cities';
         this.isPaused = false;
+        this.setupMobileKeyboard();
         this.loadData();
-        this.initKeyboard();
-    }
-
-    initKeyboard() {
-        const keyboard = document.getElementById('keyboard');
-        const letters = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
-        
-        // Создаем кнопки для букв
-        for (let letter of letters) {
-            const key = document.createElement('button');
-            key.className = 'key';
-            key.textContent = letter;
-            key.addEventListener('click', () => this.handleKeyPress(letter));
-            keyboard.appendChild(key);
-        }
-
-        // Добавляем кнопку пробела
-        const spaceKey = document.createElement('button');
-        spaceKey.className = 'key space';
-        spaceKey.textContent = 'ПРОБЕЛ';
-        spaceKey.addEventListener('click', () => this.handleKeyPress(' '));
-        keyboard.appendChild(spaceKey);
-
-        // Добавляем кнопку дефиса
-        const hyphenKey = document.createElement('button');
-        hyphenKey.className = 'key hyphen';
-        hyphenKey.textContent = '-';
-        hyphenKey.addEventListener('click', () => this.handleKeyPress('-'));
-        keyboard.appendChild(hyphenKey);
-    }
-
-    handleKeyPress(key) {
-        if (this.isPaused) return;
-        this.input += key;
-        if (this.words.length > 0) {
-            const target = this.words[0].text;
-            const inputUp = this.input.toUpperCase();
-            if (!target.startsWith(inputUp)) {
-                this.input = '';
-                return;
-            }
-        }
-        this.checkInput();
     }
 
     async loadData() {
@@ -181,25 +139,66 @@ class Game {
         }
     }
 
-    startGame() {
-        const themeSelect = document.getElementById('themeSelect');
-        themeSelect.addEventListener('change', e => {
-            this.currentTheme = e.target.value;
-            this.endGame();
+    setupMobileKeyboard() {
+        const keyboard = document.getElementById('keyboard');
+        if (!keyboard) {
+            console.error('Элемент keyboard не найден в DOM');
+            return;
+        }
+        const letters = ['Й','Ц','У','К','Е','Н','Г','Ш','Щ','З','Х','Ъ',
+                         'Ф','Ы','В','А','П','Р','О','Л','Д','Ж','Э',
+                         'Я','Ч','С','М','И','Т','Ь','Б','Ю','-',' '];
+        keyboard.innerHTML = '';
+        letters.forEach(letter => {
+            const key = document.createElement('button');
+            key.className = 'key';
+            key.textContent = letter === ' ' ? 'Пробел' : letter;
+            if (letter === ' ' || letter === '-') {
+                key.className += ' special';
+            }
+            key.addEventListener('click', () => {
+                this.input += letter.toUpperCase();
+                this.checkInput();
+            });
+            keyboard.appendChild(key);
         });
 
+        const clear = document.createElement('button');
+        clear.className = 'key special';
+        clear.textContent = '← Очистить';
+        clear.addEventListener('click', () => {
+            this.input = '';
+        });
+        keyboard.appendChild(clear);
+    }
+
+    startGame() {
         document.getElementById('startButton').addEventListener('click', () => {
             if (!this.isPaused) this.gameLoop();
             this.isPaused = false;
+            document.getElementById('startButton').blur(); // Убираем фокус с кнопки
         });
         document.getElementById('pauseButton').addEventListener('click', () => this.pauseGame());
         document.getElementById('endButton').addEventListener('click', () => this.endGame());
 
-        // Оставляем обработку физической клавиатуры для отладки
         document.addEventListener('keydown', e => {
             if (this.isPaused) return;
             const key = e.key;
-            this.handleKeyPress(key);
+            if (/^[а-яА-ЯёЁ \-]$/.test(key)) {
+                this.input += key.toUpperCase().replace('Ё', 'Е');
+                this.checkInput();
+                e.preventDefault(); // Предотвращаем стандартное поведение
+            } else if (e.key === 'Backspace') {
+                this.input = '';
+                e.preventDefault();
+            } else if (e.key === ' ' && document.activeElement.tagName === 'BUTTON') {
+                e.preventDefault(); // Блокируем активацию кнопок пробелом
+            }
+        });
+
+        document.getElementById('themeSelect').addEventListener('change', e => {
+            this.currentTheme = e.target.value;
+            this.endGame();
         });
     }
 
@@ -223,12 +222,8 @@ class Game {
         const imgSrc = this.getImagePath(wordText);
         if (!imgSrc) return;
 
-        const minX = this.canvas.width * 0.35;
-        const maxX = this.canvas.width * 0.65 - 100;
-        const x = minX + Math.random() * (maxX - minX);
-
+        const x = this.canvas.width / 2;
         const word = new Word(wordText, x, imgSrc);
-        word.speed = 0.3;  // единая скорость
         this.words.push(word);
     }
 
@@ -249,15 +244,10 @@ class Game {
             word.update();
             if (word.exploding && !word.particles.length) {
                 this.words.splice(idx, 1);
-                this.spawnWord();
             } else if (!word.exploding && word.y > this.canvas.height) {
                 this.words.splice(idx, 1);
             }
         });
-        if (this.score >= 50 && this.level === 1) {
-            this.level = 2;
-            this.words.forEach(w => w.speed = 0.6);
-        }
     }
 
     draw() {
@@ -268,7 +258,24 @@ class Game {
 
     checkInput() {
         if (!this.words.length || !this.input) return;
-        if (this.words[0].text === this.input.toUpperCase()) {
+
+        const currentWord = this.words[0].text;
+        const inputUpper = this.input.toUpperCase();
+        let matchedLength = 0;
+
+        // Проверяем каждую букву
+        for (let i = 0; i < inputUpper.length && i < currentWord.length; i++) {
+            if (inputUpper[i] === currentWord[i]) {
+                matchedLength++;
+            } else {
+                // Если буква неверная, полностью сбрасываем ввод
+                this.input = '';
+                return;
+            }
+        }
+
+        // Если слово полностью совпало
+        if (matchedLength === currentWord.length) {
             this.words[0].explode();
             this.score += 10;
             this.input = '';
