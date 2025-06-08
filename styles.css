@@ -14,7 +14,7 @@ body {
     position: relative;
     width: 90vw;
     max-width: 800px;
-    height: 60vh;
+    height: 50vh;
     max-height: 600px;
     margin: 10px auto;
 }
@@ -31,13 +31,12 @@ body {
     top: 10px;
     left: 10px;
     color: white;
-    font-size: 4vw;
-    max-font-size: 24px;
+    font-size: clamp(16px, 4vw, 24px); /* Адаптивный размер шрифта */
 }
 
 #themeSelect {
-    padding: 2vw;
-    font-size: 3vw;
+    padding: 1vw;
+    font-size: clamp(14px, 3vw, 16px);
     margin: 0 1vw;
     cursor: pointer;
     background-color: #4CAF50;
@@ -55,12 +54,13 @@ body {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    gap: 1vw;
 }
 
 button {
-    padding: 2vw 4vw;
-    font-size: 3vw;
-    margin: 0 1vw;
+    padding: 1vw 2vw;
+    font-size: clamp(14px, 3vw, 16px);
+    margin: 0 0.5vw;
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
@@ -85,21 +85,23 @@ button:hover {
     flex-wrap: wrap;
     justify-content: center;
     max-width: 90vw;
-    margin-top: 2vh;
+    margin-top: 1vh;
+    gap: 0.5vw;
 }
 
 .key {
-    padding: 1.5vw;
-    margin: 0.5vw;
-    font-size: 3vw;
+    padding: 1vw;
+    margin: 0;
+    font-size: clamp(12px, 2.5vw, 16px);
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
     display: inline-block;
-    min-width: 8vw;
+    min-width: 6vw;
     text-align: center;
+    box-sizing: border-box;
 }
 
 .key:hover {
@@ -107,28 +109,52 @@ button:hover {
 }
 
 .key.special {
-    width: 15vw;
+    width: 12vw;
+    font-size: clamp(12px, 2vw, 16px);
 }
 
 @media (max-width: 600px) {
     #gameContainer {
-        height: 50vh;
+        height: 40vh;
     }
 
     #score {
-        font-size: 5vw;
+        font-size: clamp(14px, 5vw, 20px);
     }
 
     #themeSelect, button, .key {
-        font-size: 4vw;
+        font-size: clamp(12px, 4vw, 16px);
     }
 
     .key {
-        padding: 2vw;
-        min-width: 10vw;
+        padding: 1.5vw;
+        min-width: 8vw;
     }
 
     .key.special {
-        width: 20vw;
+        width: 15vw;
+    }
+
+    #controls {
+        gap: 0.5vw;
+    }
+}
+
+@media (max-width: 400px) {
+    #gameContainer {
+        height: 35vh;
+    }
+
+    .key {
+        min-width: 10vw;
+        padding: 1vw;
+    }
+
+    .key.special {
+        width: 18vw;
+    }
+
+    #keyboard {
+        gap: 0.3vw;
     }
 }
